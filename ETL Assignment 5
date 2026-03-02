@@ -1,0 +1,149 @@
+# Data Loading (ETL) Assignment
+
+Given Dataset:
+
+| Order_ID | Customer_ID | Sales_Amount   | Order_Date   |
+|----------|------------|---------------|-------------|
+| O101 | C001 | 4500 | 12-01-2024 |
+| O102 | C002 | Null | 15-01-2024 |
+| O103 | C003 | 3200 | 2024/01/18 |
+| O101 | C001 | 4500 | 12-01-2024 |
+| O104 | C004 | Three Thousand | 20-01-2024 |
+| O105 | C005 | 5100 | 25-01-2024 |
+
+---
+
+## Q1. Data Understanding  
+Identify all data quality issues present in the dataset.
+
+- Duplicate Order_ID (O101 appears twice).
+- Missing value in Sales_Amount (O102).
+- Invalid data type in Sales_Amount ("Three Thousand").
+- Inconsistent date formats (12-01-2024 and 2024/01/18).
+- Possible primary key violation due to duplicate Order_ID.
+
+---
+
+## Q2. Primary Key Validation  
+Assume Order_ID is the Primary Key.
+
+a) Is the dataset violating the Primary Key rule?  
+Yes.
+
+b) Which record(s) cause this violation?  
+Order_ID O101 appears twice.
+
+---
+
+## Q3. Missing Value Analysis  
+
+a) Which column(s) contain missing values?  
+Sales_Amount.
+
+b) Affected record(s):  
+Order_ID O102.
+
+c) Why is loading without handling missing values risky?  
+- It may cause incorrect total sales calculations.
+- It may violate NOT NULL constraints in the database.
+- Reports and KPIs may become inaccurate.
+
+---
+
+## Q4. Data Type Validation  
+
+Identify records where Sales_Amount violates numeric rules.
+
+a) Records failing numeric validation:  
+- O104 (Sales_Amount = "Three Thousand").
+
+b) What happens if loaded into SQL with Sales_Amount as DECIMAL?  
+- The record will fail during insertion.
+- The load process may stop.
+- The value may be rejected or converted to NULL depending on system settings.
+
+---
+
+## Q5. Date Format Consistency  
+
+a) Date formats present:  
+- DD-MM-YYYY (12-01-2024)  
+- YYYY/MM/DD (2024/01/18)
+
+b) Why is this a problem?  
+- Database may not parse mixed formats correctly.
+- Sorting and filtering by date may produce incorrect results.
+- Load errors may occur during type conversion.
+
+---
+
+## Q6. Load Readiness Decision  
+
+a) Should this dataset be loaded directly into the database?  
+No.
+
+b) Justification:  
+- Duplicate primary key values exist.
+- Missing Sales_Amount value.
+- Invalid numeric data type.
+- Inconsistent date formats.
+
+---
+
+## Q7. Pre-Load Validation Checklist  
+
+- Check primary key uniqueness.
+- Validate Sales_Amount is numeric.
+- Check for missing values.
+- Standardize date format.
+- Remove duplicate records.
+- Validate data types before loading.
+
+---
+
+## Q8. Cleaning Strategy  
+
+Step-by-step cleaning actions:
+
+1. Remove duplicate Order_ID (keep one O101 record).
+2. Convert all Order_Date values to a single format (e.g., YYYY-MM-DD).
+3. Replace or impute missing Sales_Amount (O102).
+4. Convert "Three Thousand" to numeric value (3000).
+5. Validate all columns against expected data types.
+6. Re-check primary key uniqueness before loading.
+
+---
+
+## Q9. Loading Strategy Selection  
+
+a) Should Full Load or Incremental Load be used?  
+Incremental Load.
+
+b) Justification:  
+- The dataset represents daily sales data.
+- Only new records need to be added.
+- Incremental load improves performance.
+- Reduces system resource usage.
+
+---
+
+## Q10. BI Impact Scenario  
+
+Assume the dataset was loaded without cleaning.
+
+a) Incorrect results in Total Sales KPI:  
+- Duplicate O101 will double-count sales.
+- Missing Sales_Amount may reduce total sales.
+- "Three Thousand" may not be counted properly.
+
+b) Records causing misleading insights:  
+- O101 (duplicate).  
+- O102 (missing Sales_Amount).  
+- O104 (invalid numeric value).  
+
+c) Why BI tools will not detect these automatically:  
+- BI tools assume data is already clean.
+- They perform calculations on available values.
+- They do not validate business rules unless explicitly configured.
+
+---
